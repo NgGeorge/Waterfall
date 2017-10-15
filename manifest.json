@@ -1,29 +1,26 @@
 {
   "manifest_version": 2,
 
-  "name": "Cloaked!",
-  "description": "This extension hides all Destiny 2 spoilers.",
-  "version": "1.1",
+  "name": "Waterfall",
+  "description": "Configurable Reddit auto-scroller.",
+  "version": "1.0",
 
   "browser_action": {
     "default_icon": "icon16.png",
     "default_popup": "popup.html",
-    "default_title": "Cloaked: A Destiny 2 Spoiler Blocker"
+    "default_title": "Waterfall: A configurable Reddit auto-scroller."
   },
 
   "icons": {
-  	"16": "icon16.png",
-	"48": "icon48.png",
-	"128": "icon128.png"
   },
 
   "permissions": [
     "storage",
     "tabs"
   ],
-  
+
   "content_scripts": [ {
-    "js" : ["ext/jquery.min.js", "cloaked.js"],
+    "js" : ["ext/jquery.min.js", "waterfall.js"],
     "matches": ["<all_urls>"]
   }],
 
