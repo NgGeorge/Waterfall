@@ -1,4 +1,9 @@
 (function ($) {
+  /*
+   * Commenting out the observer code
+   * It will only be used for Facebook/Twitter
+   * but both currently aren't supported.
+   *
 	var obs_count = 0; 				// Number of events observed by an observer
 	
 	// For Pages with dynamic feeds
@@ -25,6 +30,7 @@
 			attributes: true, // watches targets attributes
 		});
 	}
+  */
 
     // Persists the state of the enable button (even when the popup is closed), and dynamically changes the text when the button is pressed; might use the storage API in the future.
     var setupEnabledSwitch = function(state, port) {
