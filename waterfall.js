@@ -75,7 +75,7 @@
                 // Gets the last child element of sitetable with the class of thing
                 const $lastThreadChild = $('.thing:last');
 
-                // Check if the load more comments button exists at the bottom of the pag
+                // Check if the load more comments button exists at the bottom of the page
                 if ($lastThreadChild.hasClass('morechildren')) {
                  
                  // Click the load more comments button
