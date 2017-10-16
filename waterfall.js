@@ -5,8 +5,9 @@
 	// TODO: function getEnabledState gets state from storage, or sets it if it doesn't yet exist; use in conjuncion with chrome.storage.onChanged.addListener...
 	function getEnabledState() {
 		chrome.storage.local.get("enabledState", function(result) {
+			// Scrolling should be disabled by default.
 			if (result == null) {
-				setEnabledState(true);
+				setEnabledState(false);
 			} else {
 				enabledState = result;
 			}
@@ -50,16 +51,17 @@
 		});
 	}
 
-    // Persists the state of the enable button (even when the popup is closed), and dynamically changes the text when the button is pressed; might use the storage API in the future.
-    var setupEnabledSwitch = function(state, port) {
-				// Update the button text based on the enabled state.
-				$('#enabledLabel').text(state ? 'Enabled' : 'Enable');
+    // Persists the state of the enable button
+    // var setupEnabledSwitch = function(state, port) {
+		// 		// Update the button text based on the enabled state.
+		// 		$('#enabledLabel').text(state ? 'Enabled' : 'Enable');
+		//
+    //     $('#enabledSwitch').attr('checked', state ? 'checked' : null).click(function() {
+    //         $('#enabledLabel').text($('#enabledLabel').text() == 'Enabled' ? 'Enable' : 'Enabled');
+    //         port.postMessage({cmd: "setEnabledState", data: !state});
+    //     });
+    // }
 
-        $('#enabledSwitch').attr('checked', state ? 'checked' : null).click(function() {
-            $('#enabledLabel').text($('#enabledLabel').text() == 'Enabled' ? 'Enable' : 'Enabled');
-            port.postMessage({cmd: "setEnabledState", data: !state});
-        });
-    }
 
 	// Case insensitive jquery contains
 	jQuery.expr[':'].icontains = function(element, index, match) {
@@ -69,27 +71,33 @@
 
 	// Run script
 	$(function () {
-				// Only run on reddit
+				// Only run on Reddit
 				if (window.location.href.indexOf("reddit") === -1 ) return;
 
 				// Get the enabled state.
-        var backgroundPort = chrome.runtime.connect({name: "background"});
-        backgroundPort.postMessage({cmd: "getEnabledState"});
-        backgroundPort.onMessage.addListener(function(response) {
-						setupEnabledSwitch(response, backgroundPort);
-            // Only runs the entire extension if "enabledState" returns true
-            if (!response) return;
-        });
+        // var backgroundPort = chrome.runtime.connect({name: "background"});
+        // backgroundPort.postMessage({cmd: "getEnabledState"});
+        // backgroundPort.onMessage.addListener(function(response) {
+				// 		setupEnabledSwitch(response, backgroundPort);
+        //     // Only runs the entire extension if "enabledState" returns true
+        //     if (!response) return;
+        // });
+
+				$('#enabledSwitch').click(function() {
+					console.log("clicked!");
+					$('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
+					// Clicking the on/off button sends the opposite value to storage.
+					setEnabledState(!enabledState);
+				});
 
 				// TODO: Upon any change to storage, re-runs scroll code.
 				chrome.storage.onChanged.addListener(function(changes, areaName) {
-					for (key in changes) {
-						var newValue = changes[key].newValue; // can be true, or false
-						console.log(newValue);
+						var newState = changes["enabledState"].newValue;
+						console.log(newState);
 						// Update the enabled/disabled button text
-
+						$('#enabledLabel').text(state ? 'Enabled' : 'Enable');
+		        $('#enabledSwitch').attr('checked', state ? 'checked' : null);
 						// Stop or restart the scrolling.
-					}
 				});
 	});
 }(window.jQuery));
