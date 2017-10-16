@@ -27,14 +27,11 @@
 	}
 
     // Persists the state of the enable button (even when the popup is closed), and dynamically changes the text when the button is pressed; might use the storage API in the future.
-    var setupEnabledSwitch = function(state, port) {
+    const setupEnabledSwitch = function(state, port) {
         $('#enabledLabel').text(state ? 'Enabled' : 'Enable');
         $('#enabledSwitch').attr('checked', state ? 'checked' : null).click(function() {
             $('#enabledLabel').text($('#enabledLabel').text() == 'Enabled' ? 'Enable' : 'Enabled');
             port.postMessage({cmd: "setEnabledState", data: !state});
-
-            // Reload the browser page.
-            chrome.tabs.reload();
         });
     }
 
@@ -47,13 +44,23 @@
 	// Run script
 	$(function () {
         // Get the enabled state.
-        var backgroundPort = chrome.runtime.connect({name: "background"});
+        const backgroundPort = chrome.runtime.connect({name: "background"});
         backgroundPort.postMessage({cmd: "getEnabledState"});
         backgroundPort.onMessage.addListener(function(response) {
             setupEnabledSwitch(response, backgroundPort);
 
             // Only runs the entire extension if "enabledState" returns true
             if (!response) return;
+            
+            // Only run on reddit
+            if (window.location.href.indexOf("reddit") === -1 ) return;
+
+            // Autoscroll down page 
+            // Interval speed is in milliseconds. 
+            // Will want to hook up an adjustable speed slider 
+            // on the HTML Popup to work with this
+            let interval = 50;
+            const scroll = setInterval(function(){ window.scrollBy(0, 1); }, interval); 
         });
 	});
 }(window.jQuery));
