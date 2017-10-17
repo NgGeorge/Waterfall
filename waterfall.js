@@ -1,22 +1,23 @@
 (function ($) {
 	var obs_count = 0; 				// Number of events observed by an observer
-
 	var enabledState;
 
 	// Looks in storage for an object called "enabledState"
-	chrome.storage.local.get("enabledState", function(storageItems) {
-		var enabledState = storageItems;
-		// console.log("inner enabledState = ", enabledState)
-		if (enabledState["enabledState"] == null) {
-			// Set it to the default value
-			enabledState = false;
-			saveEnabledState();
-		}
-		// console.log("inner enabledState 2 = ", enabledState);
-	});
+	var getEnabledState = function() {
+		chrome.storage.local.get("enabledState", function(storageItems) {
+			var enabledState = storageItems;
+			console.log("inner enabledState = ", enabledState)
+			if (enabledState["enabledState"] == null) {
+				// Set it to the default value
+				enabledState = false;
+				saveEnabledState();
+			}
+			console.log("inner enabledState 2 = ", enabledState);
+		});
+	}
 
 	// Sets enabledState in chrome local storage.
-	function saveEnabledState() {
+	var saveEnabledState = function() {
 		console.log("enabledState in save function: ", enabledState);
 		chrome.storage.local.set({"enabledState": enabledState}, function (result) {
 			// set enabledState here?
@@ -60,9 +61,14 @@
 
 	// Run script
 	$(function () {
-		var enabledState;
 		// Only run on Reddit; this doesn't seem to work on Kenny's end
 		if (window.location.href.indexOf("reddit") === -1 ) return;
+
+		// Add listener for storage changes
+		chrome.storage.onChanged.addListener(function(changes, namespace) {
+			var storageChange = changes["enabledState"];
+			
+		});
 
 		// Autoscroll down page
 		// Interval speed is in milliseconds.
