@@ -3,17 +3,19 @@
 (function ($) {
 	var obs_count = 0; 				// Number of events observed by an observer
 	var enabledState;
-	
+	const DEFAULT_SCROLL_INTERVAL = 50;
+	var scrollTimer;
+
 	// TODO: is there a way to define your own callback, so you don't have to put this down in the Run Script area?
-	var saveEnabledState = function() {
-		// console.log("enabledState in save function: ", enabledState);
-		chrome.storage.local.set({"enabledState": enabledState}, function (result) {
-			// set enabledState here?
-			if (chrome.runtime.error) {
-				console.log(chrome.runtime.error);
-			}
-		});
-	}
+	// function saveEnabledState(state) {
+	// 	// console.log("enabledState in save function: ", enabledState);
+	// 	chrome.storage.local.set({"enabledState": state}, function (result) {
+	// 		// set enabledState here?
+	// 		if (chrome.runtime.error) {
+	// 			console.log(chrome.runtime.error);
+	// 		}
+	// 	});
+	// }
 
 
 	// For Pages with dynamic feeds
@@ -47,6 +49,42 @@
 		.indexOf(match[3].toUpperCase()) >= 0;
 	};
 
+	// Sets the scroll "speed"
+	function setScroll() {
+		if (!enabledState) {
+			console.log("turning off scroll");
+			window.clearInterval(scrollTimer);
+		} else {
+			var scroll = window.setInterval(function(){
+				window.scrollBy(0, 1);
+				loadMoreComments();
+			}, DEFAULT_SCROLL_INTERVAL);
+		}
+		return scroll;
+		// ALternate approach?: set scrollBy() values to 0? but it leaves the interval; THIS DOESN'T WORK HOWEVER
+		// var verticalScroll = enabledState ? 1 : 0;
+		// var scroll = window.setInterval(function() {
+		// 	window.scrollBy(0, verticalScroll);
+		// 	loadMoreComments();
+		// }, DEFAULT_SCROLL_INTERVAL);
+	}
+
+	function loadMoreComments() {
+		// Check if the current window is at the bottom of the page
+		if ((window.innerHeight + window.scrollY + 1) >= document.body.scrollHeight) {
+
+			// Gets the last child element of sitetable with the class of thing
+			const $lastThreadChild = $('.thing:last');
+
+			// Check if the load more comments button exists at the bottom of the page
+			if ($lastThreadChild.hasClass('morechildren')) {
+
+			 // Click the load more comments button
+			 $lastThreadChild.find('a span').click();
+			}
+		}
+	}
+
 	// Run script
 	$(function () {
 		// Only run on Reddit; HOWEVER THIS CAUSES THE REST TO NOT RUN BECAUSE DURING DEVELOPMENT I NEED TO REFRESH THE EXTENSION PAGE FIRST
@@ -55,19 +93,14 @@
 		// 	return;
 		// }
 
-		// Upon any change to storage, re-runs scroll code.
+		// Changes scroll accordingly to any change to enabledState in storage
 		chrome.storage.onChanged.addListener(function(changes, areaName) {
-			console.log(".storage.onChanged triggered!");
-			// Only need to track one stored value:
 			var newState = changes["enabledState"].newValue;
-			console.log(newState);
-			// Update the enabled/disabled button text
-			$('#enabledLabel').text(state ? 'Enabled' : 'Enable');
-			$('#enabledSwitch').attr('checked', state ? 'checked' : null);
-			// Stop or restart the scrolling.
+			console.log(".storage.onChanged triggered! new state: ", newState);
+
+			// TODO: Stop or restart the scrolling.
+			scrollTimer = setScroll();
 		});
-
-
 
 		// Looks in storage for an object called "enabledState"
 		chrome.storage.local.get("enabledState", function(storageItems) {
@@ -77,47 +110,27 @@
 				// Set it to the default value
 				// console.log("TEST");
 				enabledState = false;
-				saveEnabledState();
+				// TODO: this .set code needs to be refactored, if possible.
+				chrome.storage.local.set({"enabledState": enabledState}, function() {
+					// console.log("state saved.");
+				});
 			}
-
-
-			// console.log("outer enabledState:" + enabledState);
-
-			// Autoscroll down page
-			// Interval speed is in milliseconds.
-			// Will want to hook up an adjustable speed slider
-			// on the HTML Popup to work with this
-			let interval = 50;
-			const scroll = setInterval(function(){
-				window.scrollBy(0, 1);
-
-				// Check if the current window is at the bottom of the page
-				if ((window.innerHeight + window.scrollY + 1) >= document.body.scrollHeight) {
-
-					// Gets the last child element of sitetable with the class of thing
-					const $lastThreadChild = $('.thing:last');
-
-					// Check if the load more comments button exists at the bottom of the page
-					if ($lastThreadChild.hasClass('morechildren')) {
-
-					 // Click the load more comments button
-					 $lastThreadChild.find('a span').click();
-					}
-				}
-			}, interval);
 
 			// On click, updates the text and changes the value of enabledState
 			$("#enabledSwitch").click(function() {
-				console.log("enabledState = ", enabledState);
+				// console.log("button clicked; enabledState: ", enabledState);
+				// Clicking reverses the state, which is saved to storage
+				enabledState = !enabledState;
+
+				// Update the checkbox's text and checked attributes.
+				// TODO: refactor into a generalized "updateUI" function
 				$('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
-				// Clicking the on/off button sends the opposite value to storage.
-				saveEnabledState();
+				$('#enabledSwitch').attr('checked', enabledState ? 'checked' : null);
+
+				// TODO: this .set code needs to be refactored, if possible.
+				// console.log("enabledState saved to ", enabledState);
+				chrome.storage.local.set({"enabledState": enabledState});
 			});
-
-
-
-
-
 		});
 	});
 }(window.jQuery));
