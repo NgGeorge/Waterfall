@@ -61,6 +61,19 @@
             // Only run on reddit
             if (window.location.href.indexOf("reddit") === -1 ) return;
 
+            // Only match threads that are not mega threads (labeled 1-25)
+            const $queue = $('div.thing').filter( function() {
+                const $rank = $(this).attr('data-rank');
+                if($rank) {
+                    return $rank.match(/[0-9]+/);
+                }
+            });
+
+            for ( var i = 0; i < $queue.length; i++ ) {
+                const $next = $queue[i].dataset.permalink;
+                console.log($next);
+            }
+
             // Autoscroll down page 
             // Interval speed is in milliseconds. 
             // Will want to hook up an adjustable speed slider 
