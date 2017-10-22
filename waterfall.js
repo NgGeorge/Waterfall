@@ -94,6 +94,13 @@
                         console.log(chrome.runtime.error);
                     }
                 });
+
+                nextPageCb = function() {
+                    window.location.href = urls[0];
+                };
+
+                setTimeout(nextPageCb, 5000);
+
             } else { // Assumes user is in a comments page
 
                 // Autoscroll down page 
@@ -127,8 +134,13 @@
                                     // Update the index with the next page
                                     chrome.storage.local.set({"index": JSON.stringify(1+parseInt(index))});
                                     console.log(urls[parseInt(index)]);
+
                                     if (parseInt(index) < urls.length) {
-                                        window.location.href = urls[parseInt(index)];
+                                        // Go to nexet page in 5 seconds
+                                        nextPageCb = function() {
+                                            window.location.href = urls[parseInt(index)];
+                                        };
+                                        setTimeout(nextPageCb, 5000);
                                     } else {
                                         console.log("No more results");
                                     }
