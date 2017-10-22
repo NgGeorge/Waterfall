@@ -127,6 +127,7 @@
                                     // Update the index with the next page
                                     chrome.storage.local.set({"index": JSON.stringify(1+parseInt(index))});
                                     console.log(urls[parseInt(index)]);
+
                                     if (parseInt(index) < urls.length) {
                                         window.location.href = urls[parseInt(index)];
                                     } else {
