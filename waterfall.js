@@ -2,20 +2,10 @@
 
 (function ($) {
 	var obs_count = 0; 				// Number of events observed by an observer
+	// (Deprecated?) enabledState was intended to be the global variable referenced by all relevant functions, HOWEVER it is only set to false
 	var enabledState;
 	const DEFAULT_SCROLL_INTERVAL = 50;
 	var scrollTimer;
-
-	// TODO: is there a way to define your own callback, so you don't have to put this down in the Run Script area?
-	// function saveEnabledState(state) {
-	// 	// console.log("enabledState in save function: ", enabledState);
-	// 	chrome.storage.local.set({"enabledState": state}, function (result) {
-	// 		// set enabledState here?
-	// 		if (chrome.runtime.error) {
-	// 			console.log(chrome.runtime.error);
-	// 		}
-	// 	});
-	// }
 
 	// For Pages with dynamic feeds: creates an observer, and tells it what to do when it successfully observes mutations
 	var createObserver = function(item, filterDelay) {
@@ -29,7 +19,6 @@
 				blockDynamicSpoilers(item);
 			}
 		});
-
 		return observer;
 	}
 
@@ -48,17 +37,18 @@
 	};
 
 	// Sets the scroll "speed"
-	function setScroll() {
-		if (!enabledState) {
+	function setScroll(newState) {
+		if (newState === false) {
 			console.log("turning off scroll");
 			window.clearInterval(scrollTimer);
-		} else {
-			console.log("turning on scroll");
-			scrollTimer = window.setInterval(function() {
-				window.scrollBy(0, 1);
-				loadMoreComments();
-			}, DEFAULT_SCROLL_INTERVAL);
+			return;
 		}
+
+		console.log("turning on scroll");
+		scrollTimer = window.setInterval(function() {
+			window.scrollBy(0, 1);
+			loadMoreComments();
+		}, DEFAULT_SCROLL_INTERVAL);
 		// ALternate approach?: set scrollBy() values to 0? but it leaves the interval; THIS DOESN'T WORK HOWEVER
 	}
 
@@ -81,17 +71,18 @@
 	// Run script
 	$(function () {
 		// Only run on Reddit; HOWEVER THIS CAUSES THE REST TO NOT RUN BECAUSE DURING DEVELOPMENT I NEED TO REFRESH THE EXTENSION PAGE FIRST
-		// if (window.location.href.indexOf("reddit") === -1 ) {
-		// 	console.log("not reddit");
-		// 	return;
-		// }
+		if (window.location.href.indexOf("reddit") === -1 ) {
+			console.log("not reddit");
+			return;
+		}
 
 		// When enabledState in local storage is changed, changes the scroll.
 		chrome.storage.onChanged.addListener(function(changes, areaName) {
 			var newState = changes["enabledState"].newValue;
 			console.log(".storage.onChanged triggered! new state: ", newState);
 
-			setScroll();
+			// Trying: passing in newState
+			setScroll(newState);
 		});
 
 		// Looks in storage for an object called "enabledState"
@@ -110,8 +101,9 @@
 
 			// On click, updates the text and changes the value of enabledState
 			$("#enabledSwitch").click(function() {
-				// console.log("button clicked; enabledState: ", enabledState);
+				// console.log("enabledState before click: ", enabledState);
 				enabledState = !enabledState;
+				// console.log("enabledState after click: ", enabledState);
 
 				$('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
 				$('#enabledSwitch').attr('checked', enabledState ? 'checked' : null);
