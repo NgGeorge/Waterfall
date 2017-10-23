@@ -1,7 +1,7 @@
 'use strict';
 
 (function ($) {
-	var obs_count = 0; 				// Number of events observed by an observer
+	var obs_count = 0; // Number of events observed by an observer
 	// (Deprecated?) enabledState was intended to be the global variable referenced by all relevant functions, HOWEVER it is only set to false
 	var enabledState;
 	const DEFAULT_SCROLL_INTERVAL = 50;
@@ -36,7 +36,7 @@
 		.indexOf(match[3].toUpperCase()) >= 0;
 	};
 
-	// Sets the scroll "speed"
+	// Turns scroll on/off according to the new enabledState.
 	function setScroll(newState) {
 		if (newState === false) {
 			console.log("turning off scroll");
@@ -49,7 +49,6 @@
 			window.scrollBy(0, 1);
 			loadMoreComments();
 		}, DEFAULT_SCROLL_INTERVAL);
-		// ALternate approach?: set scrollBy() values to 0? but it leaves the interval; THIS DOESN'T WORK HOWEVER
 	}
 
 	function loadMoreComments() {
@@ -68,20 +67,23 @@
 		}
 	}
 
+	function setEnabledButton() {
+		$('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
+		$('#enabledSwitch').attr('checked', enabledState ? 'checked' : null);
+	}
+
 	// Run script
 	$(function () {
-		// Only run on Reddit; HOWEVER THIS CAUSES THE REST TO NOT RUN BECAUSE DURING DEVELOPMENT I NEED TO REFRESH THE EXTENSION PAGE FIRST
-		if (window.location.href.indexOf("reddit") === -1 ) {
-			console.log("not reddit");
-			return;
-		}
+		// Only run on Reddit; HOWEVER THIS CAUSES THE REST TO NOT RUN BECAUSE DURING DEVELOPMENT I NEED TO REFRESH THE EXTENSION PAGE
+		// if (window.location.href.indexOf("reddit") === -1 ) {
+		// 	console.log("not reddit");
+		// 	return;
+		// }
 
 		// When enabledState in local storage is changed, changes the scroll.
 		chrome.storage.onChanged.addListener(function(changes, areaName) {
 			var newState = changes["enabledState"].newValue;
-			console.log(".storage.onChanged triggered! new state: ", newState);
 
-			// Trying: passing in newState
 			setScroll(newState);
 		});
 
@@ -91,13 +93,15 @@
 			// console.log("inner enabledState = ", enabledState)
 			if (enabledState == null) {
 				// Set it to the default value
-				// console.log("TEST");
-				enabledState = false;
-
-				chrome.storage.local.set({"enabledState": enabledState}, function() {
-					// console.log("state saved.");
-				});
+				enabledState = false
+				chrome.storage.local.set({"enabledState": enabledState});
 			}
+
+			// TODO: based on the current enabledState, set the checkbox text
+			console.log("Setting default button text.");
+			// $('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
+			// $('#enabledSwitch').attr('checked', enabledState ? 'checked' : null);
+			setEnabledButton();
 
 			// On click, updates the text and changes the value of enabledState
 			$("#enabledSwitch").click(function() {
@@ -105,8 +109,7 @@
 				enabledState = !enabledState;
 				// console.log("enabledState after click: ", enabledState);
 
-				$('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
-				$('#enabledSwitch').attr('checked', enabledState ? 'checked' : null);
+				setEnabledButton();
 
 				// console.log("enabledState saved to ", enabledState);
 				chrome.storage.local.set({"enabledState": enabledState});
