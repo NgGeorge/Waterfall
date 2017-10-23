@@ -17,9 +17,7 @@
 	// 	});
 	// }
 
-
-	// For Pages with dynamic feeds
-	// Creates an observer, and tells it what to do when it successfully observes mutations
+	// For Pages with dynamic feeds: creates an observer, and tells it what to do when it successfully observes mutations
 	var createObserver = function(item, filterDelay) {
 		var observer = new MutationObserver(function (mutations, observer) {
 			// fired when a mutation occurs
@@ -55,18 +53,13 @@
 			console.log("turning off scroll");
 			window.clearInterval(scrollTimer);
 		} else {
-			var scroll = window.setInterval(function(){
+			console.log("turning on scroll");
+			scrollTimer = window.setInterval(function() {
 				window.scrollBy(0, 1);
 				loadMoreComments();
 			}, DEFAULT_SCROLL_INTERVAL);
 		}
-		return scroll;
 		// ALternate approach?: set scrollBy() values to 0? but it leaves the interval; THIS DOESN'T WORK HOWEVER
-		// var verticalScroll = enabledState ? 1 : 0;
-		// var scroll = window.setInterval(function() {
-		// 	window.scrollBy(0, verticalScroll);
-		// 	loadMoreComments();
-		// }, DEFAULT_SCROLL_INTERVAL);
 	}
 
 	function loadMoreComments() {
@@ -93,13 +86,12 @@
 		// 	return;
 		// }
 
-		// Changes scroll accordingly to any change to enabledState in storage
+		// When enabledState in local storage is changed, changes the scroll.
 		chrome.storage.onChanged.addListener(function(changes, areaName) {
 			var newState = changes["enabledState"].newValue;
 			console.log(".storage.onChanged triggered! new state: ", newState);
 
-			// TODO: Stop or restart the scrolling.
-			scrollTimer = setScroll();
+			setScroll();
 		});
 
 		// Looks in storage for an object called "enabledState"
@@ -110,7 +102,7 @@
 				// Set it to the default value
 				// console.log("TEST");
 				enabledState = false;
-				// TODO: this .set code needs to be refactored, if possible.
+
 				chrome.storage.local.set({"enabledState": enabledState}, function() {
 					// console.log("state saved.");
 				});
@@ -119,15 +111,11 @@
 			// On click, updates the text and changes the value of enabledState
 			$("#enabledSwitch").click(function() {
 				// console.log("button clicked; enabledState: ", enabledState);
-				// Clicking reverses the state, which is saved to storage
 				enabledState = !enabledState;
 
-				// Update the checkbox's text and checked attributes.
-				// TODO: refactor into a generalized "updateUI" function
 				$('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
 				$('#enabledSwitch').attr('checked', enabledState ? 'checked' : null);
 
-				// TODO: this .set code needs to be refactored, if possible.
 				// console.log("enabledState saved to ", enabledState);
 				chrome.storage.local.set({"enabledState": enabledState});
 			});
