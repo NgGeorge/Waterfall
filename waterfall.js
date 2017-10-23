@@ -54,7 +54,6 @@
 	function loadMoreComments() {
 		// Check if the current window is at the bottom of the page
 		if ((window.innerHeight + window.scrollY + 1) >= document.body.scrollHeight) {
-
 			// Gets the last child element of sitetable with the class of thing
 			const $lastThreadChild = $('.thing:last');
 
@@ -67,12 +66,13 @@
 		}
 	}
 
+	// Given the enabledState, sets the enabledButton UI to match.
 	function setEnabledButton() {
 		$('#enabledLabel').text(enabledState ? 'Enabled' : 'Enable');
 		$('#enabledSwitch').attr('checked', enabledState ? 'checked' : null);
 	}
 
-	// Run script
+	// Run script.
 	$(function () {
 		// Only run on Reddit; HOWEVER THIS CAUSES THE REST TO NOT RUN BECAUSE DURING DEVELOPMENT I NEED TO REFRESH THE EXTENSION PAGE
 		// if (window.location.href.indexOf("reddit") === -1 ) {
