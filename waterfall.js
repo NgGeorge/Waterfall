@@ -77,8 +77,22 @@
                 for ( var i = 0; i < $queue.length; i++ ) {
                     var nextUrl = $queue[i].dataset.permalink;
                     urls.push(nextUrl);
-                    console.log('Saved');
-                    console.log(nextUrl);
+                }
+
+                // Select Next page button
+                var nextButton = $('span.next-button a');
+                if (nextButton !== undefined && nextButton.length > 0) {
+                    var nextPage = nextButton[0].href;
+
+                    // Sets next page to queue
+                    chrome.storage.local.set({"next": JSON.stringify(nextPage)}, function() {
+                        if (chrome.runtime.error) {
+                            console.log(chrome.runtime.error);
+                        }
+                    });
+                } else {
+                    chrome.storage.local.remove("next");
+                    console.log('Reached last page of results');
                 }
 
                 // Store urls
@@ -88,17 +102,22 @@
                     }
                 })
 
-                // Sets next page to be urls[1]
+                // Sets next thread to be urls[1]
                 chrome.storage.local.set({"index": JSON.stringify(1)}, function() {
                     if (chrome.runtime.error) {
                         console.log(chrome.runtime.error);
                     }
                 });
 
+                // Redirect to the first thread
                 nextPageCb = function() {
-                    window.location.href = urls[0];
+                    if(urls.length > 0) {
+                        window.location.href = urls[0];
+                    }
                 };
 
+                // Set redirect in X seconds
+                // TODO: put this in local storage and allow user to configure
                 setTimeout(nextPageCb, 5000);
 
             } else { // Assumes user is in a comments page
@@ -126,26 +145,40 @@
                         // Check this boolean flag to only redirect once
                         if (!stop) {
                             // get next thread to load
-                            chrome.storage.local.get(["index", "urls"], function(storageItems) {
+                            chrome.storage.local.get(["index", "urls", "next"], function(storageItems) {
                                 var index = JSON.parse(JSON.stringify(storageItems["index"]));
                                 var urls = JSON.parse(JSON.stringify(storageItems["urls"]));
+
+                                var next = null;
+                                if ("next" in storageItems) {
+                                    next = JSON.parse(storageItems["next"]);
+                                }
 
                                 if (index != null && urls != null) {
                                     // Update the index with the next page
                                     chrome.storage.local.set({"index": JSON.stringify(1+parseInt(index))});
-                                    console.log(urls[parseInt(index)]);
 
                                     if (parseInt(index) < urls.length) {
-                                        // Go to nexet page in 5 seconds
+                                        // Go to next thread in 5 seconds
                                         nextPageCb = function() {
                                             window.location.href = urls[parseInt(index)];
                                         };
                                         setTimeout(nextPageCb, 5000);
+                                        console.log(urls[parseInt(index)]);
                                     } else {
-                                        console.log("No more results");
+                                        if (next !== null) {
+                                            // Go to next frontpage in 5 seconds
+                                            nextPageCb = function() {
+                                                window.location.href = next;
+                                            };
+                                            setTimeout(nextPageCb, 5000);
+                                            console.log(next);
+                                        } else {
+                                            console.log("No more results");
+                                        }
                                     }
                                 } else {
-                                    console.log("No more results");
+                                    console.log("No results");
                                 }
                             });
                             stop = true;
