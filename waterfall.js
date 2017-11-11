@@ -64,6 +64,15 @@
                 // Assumes user is on reddit main page or subreddit
                 // TODO: Make this more robust using regex
 
+				// Make NavBar Here
+				const $navBar = $('<div class="waterfallNav"></div>');
+				const $navMessage = $('<h2 class="navMessage"></h2>');
+				const $nextThread = $('<a href="#" class="nextThread"></a>');
+				// Do stuff to each of these
+				// Then nest them
+				// Then CSS
+
+
                 // Only match threads that are not mega threads (labeled 1-25)
                 const $queue = $('div.thing').filter( function() {
                     const $rank = $(this).attr('data-rank');
