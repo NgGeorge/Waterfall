@@ -1,5 +1,5 @@
-(function ($) {
-  console.log("REACHED1");
+$(document).ready(function() {
+  console.log("GODDAMN");
 
 	// Callback function variables
 
