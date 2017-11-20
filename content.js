@@ -125,7 +125,7 @@ $(document).ready(function() {
 									// Check this boolean flag to only redirect once
 									if (!stop) {
 											// get next thread to load
-											chrome.storage.local.get(["index", "urls", "next"], loadNextThread(storageItems));
+											chrome.storage.local.get(["index", "urls", "next"], loadNextThread);
 											stop = true;
 									}
 							}
