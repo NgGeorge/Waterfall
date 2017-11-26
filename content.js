@@ -1,5 +1,4 @@
 $(document).ready(function() {
-  console.log("GODDAMN");
 
 	// Callback function variables
 
@@ -55,7 +54,6 @@ $(document).ready(function() {
 
 	// Run Script
 	$(function () {
-  console.log("REACHED2");
 		// Only run on reddit
 		if (window.location.href.indexOf("comments") === -1 ) {
 				// Assumes user is on reddit main page or subreddit
