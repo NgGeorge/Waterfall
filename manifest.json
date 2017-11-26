@@ -14,15 +14,17 @@
   "icons": {
   },
 
+  "content_scripts": [{
+    "matches": ["*://*.reddit.com/*"],
+    "js" : ["ext/jquery.min.js", "content.js"]
+  }],
+
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "activeTab",
+    "*://*.reddit.com/*"
   ],
-
-  "content_scripts": [ {
-    "js" : ["ext/jquery.min.js", "waterfall.js"],
-    "matches": ["<all_urls>"]
-  }],
 
   "background": {
     "scripts": ["backgroundEventPage.js"],
