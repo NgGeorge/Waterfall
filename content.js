@@ -28,20 +28,22 @@ $(document).ready(function() {
 
 						if (parseInt(index) < urls.length) {
 								// Go to next thread in 5 seconds
-								nextPageCb = function() {
+								nextPageCb = function(time) {
+                    createCountdown(time);
 										window.location.href = urls[parseInt(index)];
 								};
 
 								// TODO : Stop hardcoding this, we'll probably want to store and retrieve configs from storage
-								setTimeout(nextPageCb, 5000);
+								setTimeout(nextPageCb(5000), 5000);
 								console.log(urls[parseInt(index)]);
 						} else {
 								if (next !== null) {
 										// Go to next frontpage in 5 seconds
-										nextPageCb = function() {
+										nextPageCb = function(time) {
+                        createCountdown(time);
 												window.location.href = next;
 										};
-										setTimeout(nextPageCb, 5000);
+										setTimeout(nextPageCb(5000), 5000);
 										console.log(next);
 								} else {
 										console.log("No more results");
@@ -52,8 +54,27 @@ $(document).ready(function() {
 				}
 		}
 
+  // Creates the countdown message for the info nav bar
+  const createCountdown =
+    function(time) {
+      let timeLeft = time / 1000;
+      const updateMessage = setInterval(function() {  
+        if (timeLeft <= 0) {
+          $('.infoNavBar').hide();
+          // Can I clear this interval from here? Not sure
+        }
+        $('.infoNavBar').html('Redirecting to next thread in' + timeLeft + ' seconds.');
+        timeLeft--;
+      }, time);
+    };
+
 	// Run Script
 	$(function () {
+    // This will be the infoNavBar, I can style it here or inject a CSS script. 
+    // Using test text for now to see if it shows up
+    var $test = $('<div>paapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweapaosgpasghawpeghaegoahwegosgpasghawpeghaegoahwepaosgpasghawpeghaegoahwegosgpasghawpeghaegoahweg</div>');
+
+    $('body').append($test);
 		// Only run on reddit
 		if (window.location.href.indexOf("comments") === -1 ) {
 				// Assumes user is on reddit main page or subreddit
@@ -88,7 +109,8 @@ $(document).ready(function() {
 				chrome.storage.local.set({"index": JSON.stringify(1)});
 
 				// Redirect to the first thread
-				nextPageCb = function() {
+				nextPageCb = function(time) {
+            createCountdown(time);
 						if(urls.length > 0) {
 								window.location.href = urls[0];
 						}
@@ -96,7 +118,7 @@ $(document).ready(function() {
 
 				// Set redirect in X seconds
 				// TODO: put this in local storage and allow user to configure
-				setTimeout(nextPageCb, 5000);
+				setTimeout(nextPageCb(5000), 5000);
 
 		} else { // Assumes user is in a comments page
 
