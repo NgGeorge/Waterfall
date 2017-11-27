@@ -7,7 +7,7 @@ $(document).ready(function() {
 		function() {
 				const $rank = $(this).attr('data-rank');
 				if($rank) {
-						return $rank.match(/[0-9]+/);
+					return $rank.match(/[0-9]+/);
 				}
 		};
 
@@ -61,12 +61,21 @@ $(document).ready(function() {
 
 				// Only match threads that are not mega threads (labeled 1-25)
 				const $queue = $('div.thing').filter(megaThreadFilter);
-
+				const ALLOW_NSFW = false;
 				// Create an array of urls
 				var urls = [];
 				for ( var i = 0; i < $queue.length; i++ ) {
-						var nextUrl = $queue[i].dataset.permalink;
+					// Placing additional filters here
+					var nextUrl = $queue[i].dataset.permalink;
+					if (ALLOW_NSFW) {
 						urls.push(nextUrl);
+						console.log(nextUrl);
+					} else {
+						if ($queue[i].dataset.whitelistStatus !== 'promo_adult_nsfw') {
+							urls.push(nextUrl);
+							console.log(nextUrl);
+						}
+					}
 				}
 
 				// Select Next page button
@@ -89,9 +98,7 @@ $(document).ready(function() {
 
 				// Redirect to the first thread
 				nextPageCb = function() {
-						if(urls.length > 0) {
-								window.location.href = urls[0];
-						}
+					chrome.storage.local.get(["index", "urls", "next"], loadNextThread);
 				};
 
 				// Set redirect in X seconds
